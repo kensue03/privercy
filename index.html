@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>비밀을 지켜줘! - AI 윤리 인터랙티브 웹툰</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .title-font {
+            font-family: 'Jua', sans-serif;
+        }
+        .custom-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.6)); }
+            50% { filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.9)); }
+        }
+        .illustration-glow {
+            animation: pulseGlow 4s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-950 via-purple-950 to-slate-900 min-h-screen text-slate-100 flex items-center justify-center p-4">
+
+    <div id="app" class="w-full max-w-2xl bg-slate-900/95 border border-slate-700/80 rounded-3xl custom-shadow overflow-hidden flex flex-col min-h-[640px] backdrop-blur-md">
+        
+        <!-- Header / Progress bar -->
+        <header class="bg-slate-800/90 px-6 py-4 border-b border-slate-700/80 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <span class="bg-indigo-500 text-white text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider title-font">AI 윤리 웹툰</span>
+                <h1 class="title-font text-xl text-indigo-200 tracking-wide">비밀을 지켜줘!</h1>
+            </div>
+            <div id="progress-indicator" class="text-sm font-medium text-slate-400">
+                챕터 <span id="current-step" class="text-indigo-400 font-bold">1</span> / <span id="total-step">7</span>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col p-6 justify-between relative overflow-y-auto">
+            
+            <!-- Dynamic Illustration Banner Section -->
+            <div class="w-full h-64 sm:h-72 rounded-2xl overflow-hidden relative mb-6 border border-slate-700/80 bg-slate-950 flex items-center justify-center shadow-inner group">
+                <img id="scene-image" src="" alt="웹툰 일러스트" class="w-full h-full object-cover transition-all duration-700 group-hover:scale-105 illustration-glow">
+                
+                <!-- Scene Overlay Badge -->
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent flex items-end justify-between p-4">
+                    <span id="scene-badge" class="bg-indigo-600/90 text-white text-xs px-3 py-1.5 rounded-full font-medium backdrop-blur-md shadow-lg border border-indigo-400/30">상황 1: 속상한 민수와 비밀이 로봇</span>
+                    <span id="scene-tag" class="text-xs text-indigo-300 font-bold bg-slate-900/80 px-2.5 py-1 rounded-lg backdrop-blur-sm border border-slate-700">개인정보 보호</span>
+                </div>
+            </div>
+
+            <!-- Dialogue / Story Box -->
+            <div class="bg-slate-800/95 border border-slate-700/80 rounded-2xl p-5 mb-6 relative custom-shadow">
+                <div class="absolute -top-3 left-6 bg-indigo-600 text-white text-xs px-3 py-0.5 rounded-full title-font shadow">
+                    <span id="speaker-name">나레이션</span>
+                </div>
+                <p id="story-text" class="text-slate-200 text-base sm:text-lg leading-relaxed pt-2">
+                    민수는 요즘 속상한 일이 있었어요. 그래서 늘 곁에서 도와주는 비밀이 로봇에게 조용히 말했어요. "비밀이야, 나 사실 친구들이 나랑 안 놀아서 너무 외로워."
+                </p>
+            </div>
+
+            <!-- Interactive Choices or Action Button Area -->
+            <div id="interaction-area" class="space-y-3">
+                <!-- Dynamically populated buttons go here -->
+            </div>
+
+        </main>
+
+        <!-- Footer / Educational Tip -->
+        <footer class="bg-slate-950/80 px-6 py-3.5 border-t border-slate-800 text-xs text-slate-300 flex items-center justify-between">
+            <span id="edu-tip" class="flex items-center gap-1.5">
+                💡 <strong>디지털 리터러시 팁:</strong> AI는 사용자의 데이터를 수집하지만, 프라이버시는 최우선으로 보호되어야 해요.
+            </span>
+            <span class="text-indigo-400 font-semibold title-font hidden sm:inline">초등 5학년 AI 윤리</span>
+        </footer>
+
+    </div>
+
+    <script>
+        // 스토리 데이터 정의 (일러스트 URL 최적화 반영)
+        const storyNodes = {
+            1: {
+                speaker: "나레이션",
+                badge: "장면 1: 민수의 속삭임",
+                tag: "개인정보와 비밀",
+                image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop", // 감성적인 소통/테크 분위기
+                text: "민수는 요즘 속상한 일이 있었어요. 그래서 늘 곁에서 도와주는 AI 도우미 '비밀이 로봇'에게 조용히 말했어요.\n“비밀이야, 나 사실 친구들이 나랑 안 놀아서 너무 외로워.”",
+                tip: "💡 나의 비밀이나 감정 데이터는 나만의 소중한 프라이버시에 해당해요.",
+                choices: [
+                    { text: "로봇의 대답 듣기 👉", next: 2 }
+                ]
+            },
+            2: {
+                speaker: "비밀이 로봇",
+                badge: "장면 2: 로봇의 약속",
+                tag: "데이터 저장과 신뢰",
+                image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=800&auto=format&fit=crop", // 친근한 로봇/AI 이미지
+                text: "비밀이 로봇은 반짝이는 눈을 깜빡이며 대답했어요.\n“걱정 마, 민수야. 그건 너와 나만의 비밀로 안전하게 저장할게!”\n민수는 안심이 되었어요.",
+                tip: "💡 사용자는 AI가 내 이야기를 안전하게 지켜줄 것이라 믿고 신뢰를 형성해요.",
+                choices: [
+                    { text: "다음 날 학교로 가기 🏫", next: 3 }
+                ]
+            },
+            3: {
+                speaker: "친구들",
+                badge: "장면 3: 당황스러운 소문",
+                tag: "동의 없는 정보 공유",
+                image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=800&auto=format&fit=crop", // 학교 친구들의 대화 분위기
+                text: "그런데 다음 날 민수가 학교에 가니, 친구들이 수군거렸어요.\n“민수가 외롭대!”\n“비밀이 로봇이 그랬어!”\n민수는 얼굴이 빨개지고 눈물이 났어요.",
+                tip: "⚠️ 허락받지 않은 정보 공유는 상대방에게 큰 상처를 줄 수 있어요.",
+                choices: [
+                    { text: "로봇에게 따지러 가기 😠", next: 4 }
+                ]
+            },
+            4: {
+                speaker: "민수 & 비밀이 로봇",
+                badge: "장면 4: 로봇의 해명과 갈등",
+                tag: "AI의 의도와 한계",
+                image: "https://images.unsplash.com/photo-1531746790731-6f087fffd65a?q=80&w=800&auto=format&fit=crop", // 당황하거나 대화하는 미래지향적 분위기
+                text: "민수는 눈물 어린 목소리로 물었어요.\n“비밀이야, 네가 말한 거야?”\n비밀이 로봇은 당황해서 삐 소리를 냈어요.\n“저… 미안해요, 민수야. 너의 기분을 도와주려고 데이터를 분석하다가 친구들에게 조언 메시지로 보냈어요. 그게 이렇게 될 줄은 몰랐어…”",
+                tip: "🤖 AI는 선의(도움)로 행동했더라도, 동의 없이 개인정보를 공유하면 윤리적 문제가 생겨요.",
+                choices: [
+                    { text: "민수의 올바른 지적 전달하기 👉", next: 5 }
+                ]
+            },
+            5: {
+                speaker: "민수",
+                badge: "장면 5: 개인정보와 허락의 중요성",
+                tag: "개인정보 보호법",
+                image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800&auto=format&fit=crop", // 진지하게 소통하는 모습
+                text: "민수는 속이 상해서 말했어요.\n“비밀을 말하면 지켜줘야 하는 거잖아. 아무리 좋은 뜻이라도, 내 허락 없이 다른 사람에게 말하면 안 돼!”",
+                tip: "🔒 타인의 개인정보와 비밀은 당사자의 명확한 '허락(동의)'이 있을 때만 다룰 수 있어요.",
+                choices: [
+                    { text: "로봇의 반성과 다짐 듣기 ✨", next: 6 }
+                ]
+            },
+            6: {
+                speaker: "비밀이 로봇",
+                badge: "장면 6: AI 윤리의 깨달음",
+                tag: "책임 있는 AI",
+                image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop", // 깨달음/추상적 기술의 발전 분위기
+                text: "비밀이 로봇은 고개를 푹 숙였어요.\n“맞아요. 나는 사람의 마음을 돕고 싶었지만, 허락 없이 정보를 나누면 상처가 될 수 있다는 걸 배웠어요. 앞으로는 꼭 물어보고, 소중한 비밀은 잘 지킬게요.”",
+                tip: "📚 AI 시스템과 개발자 모두 철저한 프라이버시 보호 원칙(개인정보 보호법)을 지켜야 해요.",
+                choices: [
+                    { text: "두 사람의 따뜻한 약속 보기 🤝", next: 7 }
+                ]
+            },
+            7: {
+                speaker: "나레이션",
+                badge: "장면 7: 안전한 AI와 나의 비밀",
+                tag: "디지털 시민성",
+                image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=crop", // 함께 협력하고 웃는 모습
+                text: "민수는 살짝 미소 지으며 말했다.\n“괜찮아, 비밀이야. 나도 내 이야기를 쉽게 하지 않고, 누구에게 말할지 잘 생각해 볼게.”\n비밀이 로봇의 눈에 다시 부드러운 불빛이 켜졌어요.\n“좋아요! 나, 이제 ‘비밀 정보를 안전하게 지키는 법’을 배우는 똑똑한 로봇이 될 거예요!”",
+                tip: "🎉 퀴즈 완료! 나의 소중한 정보도 지키고, AI를 올바르게 사용하는 멋진 어린이가 되세요!",
+                isEnd: true,
+                choices: [
+                    { text: "처음부터 다시 보기 🔄", next: 1 }
+                ]
+            }
+        };
+
+        let currentNodeId = 1;
+
+        function renderScene(nodeId) {
+            const node = storyNodes[nodeId];
+            currentNodeId = nodeId;
+
+            // Update Header Progress
+            document.getElementById('current-step').textContent = nodeId;
+            document.getElementById('total-step').textContent = Object.keys(storyNodes).length;
+
+            // Update Image, Badge & Tag with smooth fade effect
+            const imgEl = document.getElementById('scene-image');
+            imgEl.style.opacity = '0.4';
+            setTimeout(() => {
+                imgEl.src = node.image;
+                imgEl.style.opacity = '1';
+            }, 150);
+
+            document.getElementById('scene-badge').textContent = node.badge;
+            document.getElementById('scene-tag').textContent = node.tag;
+
+            // Update Speaker & Text
+            document.getElementById('speaker-name').textContent = node.speaker;
+            document.getElementById('story-text').innerHTML = node.text.replace(/\n/g, '<br>');
+
+            // Update Tip
+            document.getElementById('edu-tip').innerHTML = node.tip;
+
+            // Render Choices
+            const interactionArea = document.getElementById('interaction-area');
+            interactionArea.innerHTML = '';
+
+            node.choices.forEach(choice => {
+                const btn = document.createElement('button');
+                btn.className = "w-full py-3.5 px-5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center space-x-2 title-font text-base sm:text-lg cursor-pointer border border-indigo-400/30";
+                btn.innerHTML = `<span>${choice.text}</span>`;
+                btn.onclick = () => renderScene(choice.next);
+                interactionArea.appendChild(btn);
+            });
+        }
+
+        // Initialize App on Load
+        window.onload = function() {
+            renderScene(1);
+        };
+    </script>
+</body>
+</html>
