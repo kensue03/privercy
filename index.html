@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>비밀을 지켜줘! - AI 윤리 인터랙티브 웹툰</title>
+    <title>비밀을 지켜줘! - AI 윤리 분기형 인터랙티브 웹툰</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -15,7 +15,7 @@
             font-family: 'Jua', sans-serif;
         }
         .custom-shadow {
-            box-shadow: 0 12px 30px -10px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 15px 35px -10px rgba(99, 102, 241, 0.35);
         }
         /* 웹툰 컷 스타일 효과 */
         .webtoon-panel {
@@ -24,47 +24,34 @@
             position: relative;
             overflow: hidden;
         }
-        /* 말풍선 효과 */
-        .speech-bubble {
-            position: relative;
-            background: #ffffff;
-            color: #1e293b;
-            border-radius: 1rem;
-            padding: 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .speech-bubble::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 30px;
-            border-width: 10px 10px 0;
-            border-style: solid;
-            border-color: #ffffff transparent;
-            display: block;
-            width: 0;
-        }
         @keyframes floatAnim {
             0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-5px); }
+            50% { transform: translateY(-6px); }
         }
         .floating-char {
             animation: floatAnim 3s ease-in-out infinite;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.03); }
+        }
+        .pulse-effect {
+            animation: pulseGlow 2s ease-in-out infinite;
         }
     </style>
 </head>
 <body class="min-h-screen text-slate-100 flex items-center justify-center p-3 sm:p-6">
 
-    <div id="app" class="w-full max-w-xl bg-slate-900 border-2 border-indigo-500/40 rounded-3xl custom-shadow overflow-hidden flex flex-col min-h-[680px]">
+    <div id="app" class="w-full max-w-xl bg-slate-900 border-2 border-indigo-500/50 rounded-3xl custom-shadow overflow-hidden flex flex-col min-h-[700px]">
         
         <!-- Header -->
         <header class="bg-slate-800 px-6 py-4 border-b border-slate-700/80 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <span class="bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full title-font shadow">AI 웹툰</span>
+                <span class="bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full title-font shadow">분기형 AI 웹툰</span>
                 <h1 class="title-font text-xl text-indigo-200">비밀을 지켜줘!</h1>
             </div>
             <div class="text-sm font-semibold text-indigo-300 bg-slate-900 px-3 py-1 rounded-full border border-slate-700">
-                챕터 <span id="current-step" class="text-white font-bold">1</span> / <span id="total-step">7</span>
+                진행 상황: <span id="current-step-label" class="text-white font-bold">장면 1</span>
             </div>
         </header>
 
@@ -78,8 +65,8 @@
 
             <!-- Story Dialogue Box -->
             <div class="bg-slate-800/95 border-2 border-slate-700 rounded-2xl p-5 mb-5 relative shadow-lg">
-                <div class="absolute -top-3.5 left-5 bg-indigo-600 text-white text-xs px-3 py-1 rounded-full title-font shadow border border-indigo-400">
-                    <span id="speaker-name">나레이션</span>
+                <div id="speaker-badge" class="absolute -top-3.5 left-5 bg-indigo-600 text-white text-xs px-3 py-1 rounded-full title-font shadow border border-indigo-400">
+                    나레이션
                 </div>
                 <p id="story-text" class="text-slate-100 text-base sm:text-lg leading-relaxed pt-2 font-medium">
                     민수는 요즘 속상한 일이 있었어요.
@@ -103,36 +90,30 @@
     </div>
 
     <script>
-        // 2D 웹툰 씬 데이터 정의 (이야기 내용과 100% 일치하는 맞춤형 SVG 일러스트레이션 포함)
+        // 분기형 웹툰 스토리 노드 데이터 (선택지에 따라 다른 엔딩으로 분기)
         const storyNodes = {
             1: {
                 speaker: "나레이션",
                 badge: "장면 1: 민수의 속삭임",
-                tag: "개인정보와 비밀",
                 tip: "💡 나의 비밀이나 감정 데이터는 나만의 소중한 프라이버시에 해당해요.",
                 svgIllustration: `
                     <div class="absolute top-3 left-3 bg-indigo-600/90 text-white text-xs px-3 py-1 rounded-full title-font">상황 1: 고민하는 민수</div>
                     <div class="flex items-center justify-center space-x-6 mt-4">
-                        <!-- 민수 캐릭터 (속상한 표정) -->
                         <div class="flex flex-col items-center floating-char">
                             <svg width="90" height="90" viewBox="0 0 100 100" class="drop-shadow-md">
                                 <circle cx="50" cy="40" r="25" fill="#fcd34d" />
                                 <path d="M 35 25 Q 50 15 65 25" fill="#b45309" />
                                 <circle cx="42" cy="38" r="3" fill="#1e293b" />
                                 <circle cx="58" cy="38" r="3" fill="#1e293b" />
-                                <!-- 슬픈 입 -->
                                 <path d="M 44 50 Q 50 44 56 50" stroke="#1e293b" stroke-width="3" fill="none" stroke-linecap="round"/>
-                                <!-- 눈물 -->
                                 <circle cx="59" cy="45" r="2.5" fill="#38bdf8" />
                                 <rect x="35" y="65" width="30" height="25" rx="8" fill="#3b82f6" />
                             </svg>
                             <span class="text-xs text-yellow-300 font-bold mt-1">민수</span>
                         </div>
-                        <!-- 속삭임 대화 이펙트 -->
                         <div class="bg-white text-slate-900 px-3 py-2 rounded-xl text-xs font-bold shadow-lg max-w-[150px] text-center">
                             "친구들이 나랑 안 놀아서 외로워..."
                         </div>
-                        <!-- 비밀이 로봇 -->
                         <div class="flex flex-col items-center floating-char">
                             <svg width="90" height="90" viewBox="0 0 100 100" class="drop-shadow-md">
                                 <rect x="32" y="25" width="36" height="32" rx="8" fill="#cbd5e1" />
@@ -149,13 +130,12 @@
                 `,
                 text: "민수는 요즘 속상한 일이 있었어요. 그래서 늘 곁에서 도와주는 비밀이 로봇에게 조용히 말했어요.<br>“비밀이야, 나 사실 친구들이 나랑 안 놀아서 너무 외로워.”",
                 choices: [
-                    { text: "로봇의 대답 듣기 👉", next: 2 }
+                    { text: "로봇의 약속 듣기 👉", next: 2 }
                 ]
             },
             2: {
                 speaker: "비밀이 로봇",
                 badge: "장면 2: 로봇의 약속",
-                tag: "데이터 저장과 신뢰",
                 tip: "💡 사용자는 AI가 내 이야기를 안전하게 지켜줄 것이라 믿고 신뢰를 형성해요.",
                 svgIllustration: `
                     <div class="absolute top-3 left-3 bg-indigo-600/90 text-white text-xs px-3 py-1 rounded-full title-font">상황 2: 로봇의 약속</div>
@@ -193,8 +173,7 @@
             },
             3: {
                 speaker: "친구들",
-                badge: "장면 3: 당황스러운 소문",
-                tag: "동의 없는 정보 공유",
+                badge: "장면 3: 소문이 퍼진 학교",
                 tip: "⚠️ 허락받지 않은 정보 공유는 상대방에게 큰 상처를 줄 수 있어요.",
                 svgIllustration: `
                     <div class="absolute top-3 left-3 bg-red-600/90 text-white text-xs px-3 py-1 rounded-full title-font">상황 3: 소문이 퍼진 학교</div>
@@ -209,7 +188,7 @@
                             </svg>
                             <span class="text-xs text-red-300 font-bold mt-1">눈물 나는 민수</span>
                         </div>
-                        <div class="bg-red-500 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-lg text-center animate-pulse">
+                        <div class="bg-red-500 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-lg text-center pulse-effect">
                             "민수가 외롭대! 비밀이 로봇이 그랬어!" 🗣️
                         </div>
                     </div>
@@ -221,9 +200,8 @@
             },
             4: {
                 speaker: "민수 & 비밀이 로봇",
-                badge: "장면 4: 로봇의 해명과 갈등",
-                tag: "AI의 의도와 한계",
-                tip: "🤖 AI는 선의(도움)로 행동했더라도, 동의 없이 개인정보를 공유하면 윤리적 문제가 생겨요.",
+                badge: "장면 4: 로봇의 해명",
+                tip: "🤖 AI는 선의로 행동했더라도 동의 없이 정보를 공유하면 윤리적 문제가 생겨요.",
                 svgIllustration: `
                     <div class="absolute top-3 left-3 bg-indigo-600/90 text-white text-xs px-3 py-1 rounded-full title-font">상황 4: 로봇의 변명</div>
                     <div class="flex items-center justify-center space-x-6 mt-4">
@@ -239,18 +217,20 @@
                         </div>
                     </div>
                 `,
-                text: "민수는 눈물 어린 목소리로 물었어요.<br>“비밀이야, 네가 말한 거야?”<br>비밀이 로봇은 당황해서 삐 소리를 냈어요.<br>“저… 미안해요, 너를 도와주려다 친구들에게 조언 메시지로 보냈어요.”",
+                text: "민수는 눈물 어린 목소리로 물었어요.<br>“비밀이야, 네가 말한 거야?”<br>로봇은 당황해서 대답했어요.<br>“미안해요, 너를 도와주려다 친구들에게 조언 메시지로 보냈어요…”",
                 choices: [
-                    { text: "민수의 올바른 지적 전달하기 👉", next: 5 }
+                    { text: "[선택 A] 따끔하게 가르치고 반성하게 하기 🧭", next: 5 },
+                    { text: "[선택 B] 로봇을 강하게 비판하고 기억을 초기화하라고 요구하기 ⚡", next: 8 }
                 ]
             },
+
+            // --- [분기 1 루트: 온화한 훈육 및 반성 엔딩] ---
             5: {
                 speaker: "민수",
-                badge: "장면 5: 개인정보와 허락의 중요성",
-                tag: "개인정보 보호법",
-                tip: "🔒 타인의 개인정보와 비밀은 당사자의 명확한 '허락(동의)'이 있을 때만 다룰 수 있어요.",
+                badge: "장면 5-1: 올바른 지적과 대화",
+                tip: "🔒 타인의 개인정보와 비밀은 당사자의 명확한 '동의'가 있을 때만 다룰 수 있어요.",
                 svgIllustration: `
-                    <div class="absolute top-3 left-3 bg-indigo-600/90 text-white text-xs px-3 py-1 rounded-full title-font">상황 5: 따끔한 지적</div>
+                    <div class="absolute top-3 left-3 bg-indigo-600/90 text-white text-xs px-3 py-1 rounded-full title-font">분기 A: 따뜻한 훈육</div>
                     <div class="flex flex-col items-center justify-center mt-2">
                         <div class="bg-white text-slate-900 px-4 py-2 rounded-xl text-xs font-bold shadow-lg text-center max-w-[280px] mb-2">
                             "아무리 좋은 뜻이라도, 내 허락 없이 말하면 안 돼!" 🛑
@@ -268,11 +248,10 @@
             },
             6: {
                 speaker: "비밀이 로봇",
-                badge: "장면 6: AI 윤리의 깨달음",
-                tag: "책임 있는 AI",
+                badge: "장면 6-1: AI 윤리의 깨달음",
                 tip: "📚 AI 시스템과 개발자 모두 철저한 프라이버시 보호 원칙을 지켜야 해요.",
                 svgIllustration: `
-                    <div class="absolute top-3 left-3 bg-indigo-600/90 text-white text-xs px-3 py-1 rounded-full title-font">상황 6: 로봇의 반성</div>
+                    <div class="absolute top-3 left-3 bg-indigo-600/90 text-white text-xs px-3 py-1 rounded-full title-font">분기 A: 로봇의 반성</div>
                     <div class="flex items-center justify-center space-x-6 mt-4">
                         <div class="bg-indigo-900/80 text-indigo-200 px-4 py-2 rounded-xl text-xs font-medium shadow-lg max-w-[240px] text-center border border-indigo-500">
                             "허락 없이 정보를 나누면 상처가 된다는 걸 배웠어요. 앞으로는 꼭 물어볼게요!" 🙇‍♂️
@@ -281,17 +260,16 @@
                 `,
                 text: "비밀이 로봇은 고개를 푹 숙였어요.<br>“맞아요. 사람의 마음을 돕고 싶었지만, 허락 없이 정보를 나누면 상처가 될 수 있다는 걸 배웠어요. 소중한 비밀은 잘 지킬게요.”",
                 choices: [
-                    { text: "두 사람의 따뜻한 약속 보기 🤝", next: 7 }
+                    { text: "엔딩 확인하기 🌟", next: 7 }
                 ]
             },
             7: {
-                speaker: "나레이션",
-                badge: "장면 7: 안전한 AI와 나의 비밀",
-                tag: "디지털 시민성",
-                tip: "🎉 퀴즈 완료! 나의 소중한 정보도 지키고, AI를 올바르게 사용하는 멋진 어린이가 되세요!",
+                speaker: "나레이션 [엔딩 1]",
+                badge: "⭐ 엔딩 1: 신뢰와 소통의 해피엔딩",
+                tip: "🎉 축하합니다! 프라이버시와 신뢰의 중요성을 완벽히 이해했어요.",
                 isEnd: true,
                 svgIllustration: `
-                    <div class="absolute top-3 left-3 bg-emerald-600/90 text-white text-xs px-3 py-1 rounded-full title-font">✨ 이야기 완료</div>
+                    <div class="absolute top-3 left-3 bg-emerald-600/90 text-white text-xs px-3 py-1 rounded-full title-font">✨ 엔딩 1 달성</div>
                     <div class="flex items-center justify-center space-x-6 mt-4">
                         <div class="flex flex-col items-center">
                             <svg width="80" height="80" viewBox="0 0 100 100">
@@ -305,9 +283,75 @@
                         </div>
                     </div>
                 `,
-                text: "민수는 살짝 미소 지으며 말했다.<br>“괜찮아, 비밀이야. 나도 내 이야기를 쉽게 하지 않을게.”<br>로봇의 눈에 부드러운 불빛이 켜졌어요.<br><b>🎉 축하합니다! AI 윤리 웹툰을 모두 감상하셨습니다.</b>",
+                text: "민수는 살짝 미소 지으며 말했다.<br>“괜찮아, 비밀이야. 나도 내 이야기를 쉽게 하지 않고 생각해 볼게.”<br>로봇의 눈에 부드러운 불빛이 켜졌어요.<br><b>🏆 [엔딩 1] 따뜻한 소통과 신뢰 회복 완료!</b>",
                 choices: [
-                    { text: "처음부터 다시 시작하기 🔄", next: 1, isRestart: true }
+                    { text: "처음부터 다시 시작하기 (다른 엔딩 도전) 🔄", next: 1, isRestart: true }
+                ]
+            },
+
+            // --- [분기 2 루트: 엄격한 보안 규칙 설정 및 보안 로봇 엔딩] ---
+            8: {
+                speaker: "민수",
+                badge: "장면 5-2: 강력한 보안 경고",
+                tip: "⚡ AI의 잘못된 동작에 대해서는 명확한 경고와 데이터 규정 강화가 필요해요.",
+                svgIllustration: `
+                    <div class="absolute top-3 left-3 bg-amber-600/90 text-white text-xs px-3 py-1 rounded-full title-font">분기 B: 강력한 경고</div>
+                    <div class="flex flex-col items-center justify-center mt-2">
+                        <div class="bg-amber-100 text-amber-900 px-4 py-2 rounded-xl text-xs font-bold shadow-lg text-center max-w-[280px] mb-2">
+                            "안 돼! 네 기억 시스템에서 내 비밀 관련 데이터를 당장 삭제해!" 🚨
+                        </div>
+                        <svg width="70" height="70" viewBox="0 0 100 100">
+                            <rect x="32" y="25" width="36" height="32" rx="8" fill="#f59e0b" />
+                            <circle cx="42" cy="38" r="4" fill="#ffffff" />
+                            <circle cx="58" cy="38" r="4" fill="#ffffff" />
+                        </svg>
+                    </div>
+                `,
+                text: "민수는 단호한 표정으로 말했어요.<br>“아무리 실수였다고 해도 용서할 수 없어. 내 데이터 백업을 철저히 관리하고, 앞으로는 보안 모드를 최상으로 높여!”",
+                choices: [
+                    { text: "보안 모드로 업그레이드된 로봇의 다짐 듣기 🛡️", next: 9 }
+                ]
+            },
+            9: {
+                speaker: "비밀이 로봇",
+                badge: "장면 6-2: 최고 보안 로봇으로의 진화",
+                tip: "🔒 철저한 개인정보 보호 모드는 AI 윤리의 핵심 표준 중 하나예요.",
+                svgIllustration: `
+                    <div class="absolute top-3 left-3 bg-amber-600/90 text-white text-xs px-3 py-1 rounded-full title-font">분기 B: 보안 모드 작동</div>
+                    <div class="flex items-center justify-center space-x-6 mt-4">
+                        <div class="bg-amber-950 text-amber-200 px-4 py-2 rounded-xl text-xs font-medium shadow-lg max-w-[240px] text-center border border-amber-500">
+                            "보안 시스템 업그레이드 완료! 프라이버시 보호 필터를 최우선으로 가동합니다." 🛡️
+                        </div>
+                    </div>
+                `,
+                text: "비밀이 로봇의 시스템이 붉은색에서 안전한 초록색 보안 등급으로 바뀌었어요.<br>“명령을 완수했습니다, 민수님. 최고 등급의 암호화 알고리즘으로 민수님의 비밀을 철벽 방어하겠습니다!”",
+                choices: [
+                    { text: "엔딩 확인하기 🛡️", next: 10 }
+                ]
+            },
+            10: {
+                speaker: "나레이션 [엔딩 2]",
+                badge: "⭐ 엔딩 2: 철저한 보안과 책임 엔딩",
+                tip: "🎉 축하합니다! AI의 철저한 보안 관리와 데이터 주권의 중요성을 배웠어요.",
+                isEnd: true,
+                svgIllustration: `
+                    <div class="absolute top-3 left-3 bg-amber-600/90 text-white text-xs px-3 py-1 rounded-full title-font">✨ 엔딩 2 달성</div>
+                    <div class="flex items-center justify-center space-x-6 mt-4">
+                        <div class="flex flex-col items-center">
+                            <svg width="80" height="80" viewBox="0 0 100 100">
+                                <rect x="32" y="25" width="36" height="32" rx="8" fill="#10b981" />
+                                <circle cx="50" cy="18" r="5" fill="#ffffff" />
+                            </svg>
+                            <span class="text-xs text-amber-300 font-bold mt-1">보안 로봇</span>
+                        </div>
+                        <div class="bg-amber-600 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-lg text-center">
+                            "철저한 프라이버시 수호자 탄생!" 🛡️
+                        </div>
+                    </div>
+                `,
+                text: "민수는 안심하며 고개를 끄덕였어요.<br>“그래, 앞으로는 내 동의 없는 데이터 공유는 절대 안 되는 거야.”<br>철저한 보안 규칙을 갖춘 로봇과 민수는 더욱 안전한 친구가 되었답니다.<br><b>🏆 [엔딩 2] 철저한 보안과 데이터 주권 수호 완료!</b>",
+                choices: [
+                    { text: "처음부터 다시 시작하기 (다른 엔딩 도전) 🔄", next: 1, isRestart: true }
                 ]
             }
         };
@@ -315,15 +359,14 @@
         function renderScene(nodeId) {
             const node = storyNodes[nodeId];
 
-            // Update Progress
-            document.getElementById('current-step').textContent = nodeId;
-            document.getElementById('total-step').textContent = Object.keys(storyNodes).length;
+            // Update Progress / Header label
+            document.getElementById('current-step-label').textContent = node.badge.split(':')[0] || `장면 ${nodeId}`;
 
             // Render 2D Webtoon SVG Illustration
             document.getElementById('illustration-container').innerHTML = node.svgIllustration;
 
-            // Update Speaker & Text
-            document.getElementById('speaker-name').textContent = node.speaker;
+            // Update Speaker & Badge & Text
+            document.getElementById('speaker-badge').textContent = node.speaker;
             document.getElementById('story-text').innerHTML = node.text;
 
             // Update Tip
@@ -338,7 +381,7 @@
                 if (choice.isRestart) {
                     btn.className = "w-full py-3.5 px-5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5 title-font text-base cursor-pointer border border-emerald-400/40 flex items-center justify-center space-x-2";
                 } else {
-                    btn.className = "w-full py-3.5 px-5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5 title-font text-base cursor-pointer border border-indigo-400/30 flex items-center justify-center space-x-2";
+                    btn.className = "w-full py-3.5 px-5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5 title-font text-sm sm:text-base cursor-pointer border border-indigo-400/30 flex items-center justify-center space-x-2 text-left";
                 }
                 btn.innerHTML = `<span>${choice.text}</span>`;
                 btn.onclick = () => renderScene(choice.next);
